@@ -1,24 +1,29 @@
 package lotr;
 
 import lombok.SneakyThrows;
+import org.reflections.Reflections;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Random;
 import java.util.Set;
-import org.reflections.Reflections;
-import static org.reflections.scanners.Scanners.SubTypes;
 
 public class CharacterFactory {
-    @SneakyThrows
-    public static Character createCharacter() {
-        Reflections reflections = new Reflections("lotr");
-        Set<Class<?>> subTypes =
-                reflections.get(SubTypes.of(Character.class).asClass());
+    private static final Random generator = new Random();
+    private static final Reflections reflections = new Reflections("chars");
+    private static final Set<Class<? extends Character>> subTypes = reflections.getSubTypesOf(Character.class);
+
+    static {
         subTypes.remove(Noble.class);
-        Class cls = (Class) subTypes.toArray()[new Random().nextInt(subTypes.size())];
-        return (Character) cls.getDeclaredConstructor().newInstance();
     }
 
-    public static void main(String[] args) {
+    private static final List<Class> subList = Arrays.asList(subTypes.toArray(new Class[0]));
+    @SneakyThrows
+    public static Character createCharacter(){
+        return (Character) subList.get(generator.nextInt(3)).newInstance();
+    }
+    @SneakyThrows
+    public static void main(String[] args){
         lotr.Character ch = CharacterFactory.createCharacter();
         System.out.println(ch);
     }
